@@ -1,3 +1,9 @@
+# Data files
+data/
+
+# Visual Studio Code fiels
+.vscode/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
