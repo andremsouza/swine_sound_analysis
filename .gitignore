@@ -1,3 +1,11 @@
+# Files without extension
+# Ignore all
+*
+# Unignore all with extensions
+!*.*
+# Unignore all dirs
+!*/
+
 # Data files
 data/
 
@@ -132,3 +140,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Bash files
+**.sh
