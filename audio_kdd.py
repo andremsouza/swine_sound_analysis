@@ -31,7 +31,7 @@ df.loc['2020-09-22':, 'rac'] = True  # type: ignore
 file_name = np.random.choice(df['file_name'])
 x, sr = lr.load(file_name)
 
-fig, ax = plt.subplots(1, 2, sharex=True, sharey=False, figsize=(16, 9))
+fig, ax = plt.subplots(2, 1, sharex=False, sharey=False, figsize=(16, 9))
 lrdisp.waveplot(
     x,
     sr=sr,
@@ -43,7 +43,7 @@ img = lrdisp.specshow(lr.amplitude_to_db(np.abs(lr.stft(x)), ref=np.max),
                       ax=ax[1])
 fig.colorbar(img, ax=ax[1], format="%+2.0f dB")
 plt.draw()
-fig.savefig('./audio_sample.png')
+fig.savefig('./audio_sample.png', bbox_inches='tight')
 
 # %% [markdown]
 # # Visualizing basic dataset properties
