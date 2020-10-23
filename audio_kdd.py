@@ -25,7 +25,27 @@ df['rac'] = False
 df.loc['2020-09-22':, 'rac'] = True  # type: ignore
 
 # %% [markdown]
-# ## Visualizing waveform and spectrogramof random sample
+# ## Visualizing distribution of sample dates
+
+df_tmp = pd.DataFrame(df['file_name'].resample('1D').count())
+df_tmp['count'] = df_tmp['file_name']
+del df_tmp['file_name']
+df_tmp['rac'] = False
+df_tmp.loc['2020-09-22':, 'rac'] = True  # type: ignore
+
+plt.figure(figsize=(10, 10))
+sns.set(style="whitegrid",
+        palette=sns.color_palette("muted", n_colors=6, desat=1.0))
+sns.barplot(y=df_tmp.index, x=df_tmp['count'], hue=df_tmp['rac'])
+
+# %% [markdown]
+# There are some data gaps, especially in the pre-ractopamine subset.
+#
+# There needs to be a resampling to rebalance classes, prioritizing samples
+# that are closer to the start of the RAC provision.
+
+# %% [markdown]
+# ## Visualizing waveform and spectrogram of random sample
 
 # %%
 file_name = np.random.choice(df['file_name'])
