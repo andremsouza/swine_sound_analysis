@@ -27,25 +27,18 @@
 
 # %%
 from datetime import datetime
-# import IPython.display as ipd
 import librosa
 import librosa.display
-# import matplotlib.pyplot as plt
 import multiprocessing as mp
 import numpy as np
 import os
 import pandas as pd
-# from pprint import pprint
 import re
 from scipy.signal import butter, filtfilt
-# import seaborn as sns
-# import swifter
 import warnings
 
 import sys
 sys.path.append('./python-som/')
-
-# import python_som
 
 # %% [markdown]
 # # Function definitions
@@ -66,12 +59,6 @@ def extract_data_from_filename(fname: str) -> list:
         int(match.groups()[1])
     ]
     return data
-
-
-def load_audio_data(fname: str) -> list:
-    data = extract_data_from_filename(fname)
-    x, sr = librosa.load(fname)
-    return data + [x, sr]
 
 
 def butter_highpass(data: np.array, cutoff: float, fs: float, order: int = 5):
@@ -105,17 +92,17 @@ def timed_onset_samples(onset_samples: np.array, sr: int,
 
 def extract_feature_means(audio_file_path: str,
                           verbose: bool = True) -> pd.DataFrame:
+    """Extract audio features of a given file."""
     if verbose:
         print("File:", audio_file_path)
-    # config settings
     number_of_mfcc = 20
+    n_fft = 2048  # FFT window size
+    hop_length = 512  # number audio of frames between STFT columns
 
-    # 0. Extracting info from filename
     if verbose:
         print("0.Extracting info from filename...")
     datetime, _, ala, grupo = extract_data_from_filename(audio_file_path)
 
-    # 1. Importing 1 file
     if verbose:
         print("1.Importing file with librosa...")
     try:
@@ -123,107 +110,53 @@ def extract_feature_means(audio_file_path: str,
     except Exception as e:
         print(e)
         return None
-
     # Trim leading and trailing silence from an audio signal
-    # (silence before and after the actual audio)
     signal, _ = librosa.effects.trim(y)
 
-    # 2. Fourier Transform
     if verbose:
         print("2.Fourier transform...")
-    # Default FFT window size
-    n_fft = 2048  # FFT window size
-    hop_length = 512  # number audio of frames between STFT columns
-    # (looks like a good default)
-
     # Short-time Fourier transform (STFT)
-    y, sr = librosa.load(audio_file_path)
     d_audio = np.abs(librosa.stft(signal, n_fft=n_fft, hop_length=hop_length))
 
-    # 3. Spectrogram
     if verbose:
         print("3.Spectrogram...")
     # Convert an amplitude spectrogram to Decibels-scaled spectrogram.
     db_audio = librosa.amplitude_to_db(d_audio, ref=np.max)
 
-    # 4. Create the Mel Spectrograms
     if verbose:
         print("4.Mel spectograms...")
     s_audio = librosa.feature.melspectrogram(signal, sr=sr)
     s_db_audio = librosa.amplitude_to_db(s_audio, ref=np.max)
 
-    # 5 Zero crossings
-    if verbose:
-        print("5.Zero crossings...")
-
-    # #6. Harmonics and Perceptrual
     if verbose:
         print("6.Harmonics and perceptrual...")
-    # Note:
-    #
-    # Harmonics are characteristichs that represent the sound color
-    # Perceptrual shock wave represents the sound rhythm and emotion
     y_harm, y_perc = librosa.effects.hpss(signal)
 
-    # 7. Spectral Centroid
     if verbose:
         print("7.Spectral centroid...")
-    # Note: Indicates where the ”centre of mass” for a sound is located and is
-    # calculated as the weighted mean of the frequencies present in the sound.
-
     # Calculate the Spectral Centroids
     spectral_centroids = librosa.feature.spectral_centroid(signal, sr=sr)[0]
     spectral_centroids_delta = librosa.feature.delta(spectral_centroids)
     spectral_centroids_accelerate = librosa.feature.delta(spectral_centroids,
                                                           order=2)
 
-    # spectral_centroid_feats = np.stack((spectral_centroids,
-    # delta, accelerate))  # (3, 64, xx)
-
-    # 8. Chroma Frequencies¶
     if verbose:
-        print("8.Chroma frequencies...")
-    # Note: Chroma features are an interesting and powerful representation
-    # for music audio in which the entire spectrum is projected onto 12 bins
-    # representing the 12 distinct semitones ( or chromas) of the musical
-    # octave.
-
-    # Increase or decrease hop_length to change how granular you want your data
-    # to be
-    hop_length = 512
-
-    # Chromogram
+        print("8.Chroma features...")
     chromagram = librosa.feature.chroma_stft(signal,
                                              sr=sr,
                                              hop_length=hop_length)
 
-    # 9. Tempo BPM (beats per minute)¶
     if verbose:
         print("9.Tempo BPM...")
-    # Note: Dynamic programming beat tracker.
-
-    # Create Tempo BPM variable
     tempo_y, _ = librosa.beat.beat_track(signal, sr=sr)
 
-    # 10. Spectral Rolloff
     if verbose:
         print("10.Spectral rolloff...")
-    # Note: Is a measure of the shape of the signal.
-    # It represents the frequency below which a specified
-    #  percentage of the total spectral energy(e.g. 85 %) lies.
-
     # Spectral RollOff Vector
     spectral_rolloff = librosa.feature.spectral_rolloff(signal, sr=sr)[0]
-
     # spectral flux
     onset_env = librosa.onset.onset_strength(y=signal, sr=sr)
-
-    # Spectral Bandwidth¶
-    # The spectral bandwidth is defined as the width of the band of light
-    # at one-half the peak
-    # maximum (or full width at half maximum [FWHM]) and is represented
-    # by the two vertical
-    # red lines and λSB on the wavelength axis.
+    # Spectral Bandwidth
     spectral_bandwidth_2 = librosa.feature.spectral_bandwidth(signal, sr=sr)[0]
     spectral_bandwidth_3 = librosa.feature.spectral_bandwidth(signal,
                                                               sr=sr,
@@ -317,7 +250,7 @@ def extract_feature_means(audio_file_path: str,
 def extract_mfcc_feature_means(audio_file_name: str, signal: np.ndarray,
                                sample_rate: int,
                                number_of_mfcc: int) -> pd.DataFrame:
-
+    """Extract MFCCs from a given audio file."""
     mfcc_alt = librosa.feature.mfcc(y=signal,
                                     sr=sample_rate,
                                     n_mfcc=number_of_mfcc)
@@ -355,7 +288,7 @@ def extract_mfcc_feature_means(audio_file_name: str, signal: np.ndarray,
 # Using librosa
 
 # %%
-DATA_DIR: str = '/home/rodrigo/1_SWINE_PROJECT/'
+DATA_DIR: str = '../1_SWINE_PROJECT/'
 EXTENSION: str = '.mp4'
 fnames: list = sorted([
     os.path.join(root, file) for root, _, files in os.walk(DATA_DIR)
@@ -388,7 +321,7 @@ audios.set_index(['datetime'], drop=True, inplace=True, verify_integrity=False)
 # ### Filtering by time
 
 # %%
-audios = audios.between_time('9:00', '12:00')
+# audios = audios.between_time('9:00', '12:00')
 
 # %% [markdown]
 # ### Extracting features (parallel)
@@ -396,10 +329,18 @@ audios = audios.between_time('9:00', '12:00')
 # %%
 print('Processing', len(audios), 'audios...')
 result = []
+n_processes = 32
+iterable = list(audios['fname'])
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
-    with mp.Pool(processes=64) as pool:
-        result = pool.map(extract_feature_means, list(audios['fname']))
+    with mp.Pool(processes=n_processes) as pool:
+        result = pool.map(extract_feature_means,
+                          iterable=iterable,
+                          chunksize=len(iterable) // n_processes)
+        pool.close()
+        pool.join()
+
+# %%
 print("Done processing audios. Concatenating and writing to output file...")
 for idx, i in enumerate(result):
     if i is None:
