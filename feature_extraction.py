@@ -18,9 +18,9 @@
 #
 # Principais referências utilizadas:
 #
-# - https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.332.989&rep=rep1&type=pdf
-# - https://librosa.org/doc/main/feature.html
-# - https://towardsdatascience.com/how-i-understood-what-features-to-consider-while-training-audio-files-eedfb6e9002b
+# - https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.332.989&rep=rep1&type=pdf  # noqa: E501
+# - https://librosa.org/doc/main/feature.html  # noqa: E501
+# - https://towardsdatascience.com/how-i-understood-what-features-to-consider-while-training-audio-files-eedfb6e9002b  # noqa: E501
 
 # %% [markdown]
 # # Imports

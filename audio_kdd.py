@@ -2,7 +2,7 @@
 # # Exporatory analysis of features extracted from swine audios
 # This dataset contains the means of the extracted features, for each audio
 # Many descriptions of features were taken from the following books:
-# - https://books.google.com/books?hl=en&lr=&id=AF30yR41GIAC&oi=fnd&pg=PP9&dq=Signal+Processing+Methods+for+Music+Transcription&ots=Ooq77iPfKD&sig=WFyZTyVVFtagCBGCRLWpV8rY-Tk
+# - https://books.google.com/books?hl=en&lr=&id=AF30yR41GIAC&oi=fnd&pg=PP9&dq=Signal+Processing+Methods+for+Music+Transcription&ots=Ooq77iPfKD&sig=WFyZTyVVFtagCBGCRLWpV8rY-Tk  # noqa: E501
 
 # %% [markdown]
 # # Imports
@@ -15,18 +15,38 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
+import python_som
+
 # %% [markdown]
 # # Loading dataset
 
 # %%
-df = pd.read_csv('features_means_0900_1200.csv', index_col=0, verbose=True)
+df = pd.read_csv('features_means.csv', index_col=0, verbose=True)
 df.index = pd.to_datetime(df.index)
 df['rac'] = False
 df.loc['2020-09-22':, 'rac'] = True  # type: ignore
 
 # %% [markdown]
+# ## Checking for and dropping duplicates
+
+# %%
+# Resetting index for duplicate analysis
+df.reset_index(inplace=True)
+print("Duplicates by filename:",
+      df.duplicated(subset=['file_name']).value_counts(),
+      sep='\n')
+df.drop_duplicates(subset=['file_name'], inplace=True)
+print("Duplicates by (datetime, ala, grupo):",
+      df.duplicated(subset=['datetime', 'ala', 'grupo']).value_counts(),
+      sep='\n')
+df.drop_duplicates(subset=['datetime', 'ala', 'grupo'], inplace=True)
+# Rebuilding dataframe index
+df.set_index('datetime', inplace=True)
+
+# %% [markdown]
 # ## Visualizing distribution of sample dates
 
+# %%
 df_tmp = pd.DataFrame(df['file_name'].resample('1D').count())
 df_tmp['count'] = df_tmp['file_name']
 del df_tmp['file_name']
@@ -37,6 +57,21 @@ plt.figure(figsize=(10, 10))
 sns.set(style="whitegrid",
         palette=sns.color_palette("muted", n_colors=6, desat=1.0))
 sns.barplot(y=df_tmp.index, x=df_tmp['count'], hue=df_tmp['rac'])
+plt.draw()
+
+df_tmp = pd.DataFrame(df['file_name'].resample('1H').count())
+df_tmp['count'] = df_tmp['file_name']
+del df_tmp['file_name']
+df_tmp['rac'] = False
+df_tmp.loc['2020-09-22':, 'rac'] = True  # type: ignore
+df_tmp = df_tmp.reset_index()
+df_tmp['hour'] = df_tmp['datetime'].dt.hour
+
+plt.figure(figsize=(10, 10))
+sns.set(style="whitegrid",
+        palette=sns.color_palette("muted", n_colors=6, desat=1.0))
+sns.barplot(y=df_tmp['hour'], x=df_tmp['count'], hue=df_tmp['rac'], orient='h')
+plt.draw()
 
 # %% [markdown]
 # There are some data gaps, especially in the pre-ractopamine subset.
@@ -131,6 +166,27 @@ sns.displot(
 )
 plt.draw()
 
+df_tmp = df.reset_index()
+df_tmp['hour'] = df_tmp['datetime'].dt.hour
+df_tmp['day_quarter'] = df_tmp['hour'] // 6
+df_melt = pd.melt(df_tmp,
+                  id_vars=['day_quarter'],
+                  value_vars=['zero_crossing_rate'])
+sns.set(style="whitegrid",
+        palette=sns.color_palette("muted", n_colors=6, desat=1.0))
+sns.displot(
+    data=df_melt,
+    x='value',
+    hue='day_quarter',
+    palette='vlag',
+    kde=True,
+    rug=True,
+    row='variable',
+    height=9,
+    aspect=1,
+)
+plt.draw()
+
 # %% [markdown]
 # The distribution of the zero crossing seems slightly different after the
 # ractopamine provision.
@@ -176,6 +232,27 @@ sns.displot(
 )
 plt.draw()
 
+df_tmp = df.reset_index()
+df_tmp['hour'] = df_tmp['datetime'].dt.hour
+df_tmp['day_quarter'] = df_tmp['hour'] // 6
+df_melt = pd.melt(df_tmp,
+                  id_vars=['day_quarter'],
+                  value_vars=['spectrogram', 'mel_spectrogram'])
+sns.set(style="whitegrid",
+        palette=sns.color_palette("muted", n_colors=6, desat=1.0))
+sns.displot(
+    data=df_melt,
+    x='value',
+    hue='day_quarter',
+    palette='vlag',
+    kde=True,
+    rug=True,
+    col='variable',
+    height=9,
+    aspect=1,
+)
+plt.draw()
+
 # %% [markdown]
 # No relevant differences in the distributions were observed.
 #
@@ -200,6 +277,27 @@ sns.displot(
     col='variable',
     kde=True,
     rug=True,
+    height=9,
+    aspect=1,
+)
+plt.draw()
+
+df_tmp = df.reset_index()
+df_tmp['hour'] = df_tmp['datetime'].dt.hour
+df_tmp['day_quarter'] = df_tmp['hour'] // 6
+df_melt = pd.melt(df_tmp,
+                  id_vars=['day_quarter'],
+                  value_vars=['harmonics', 'perceptual_shock_wave'])
+sns.set(style="whitegrid",
+        palette=sns.color_palette("muted", n_colors=6, desat=1.0))
+sns.displot(
+    data=df_melt,
+    x='value',
+    hue='day_quarter',
+    palette='vlag',
+    kde=True,
+    rug=True,
+    col='variable',
     height=9,
     aspect=1,
 )
@@ -236,6 +334,27 @@ sns.displot(
 )
 plt.draw()
 
+df_tmp = df.reset_index()
+df_tmp['hour'] = df_tmp['datetime'].dt.hour
+df_tmp['day_quarter'] = df_tmp['hour'] // 6
+df_melt = pd.melt(df_tmp,
+                  id_vars=['day_quarter'],
+                  value_vars=['spectral_centroids'])
+sns.set(style="whitegrid",
+        palette=sns.color_palette("muted", n_colors=6, desat=1.0))
+sns.displot(
+    data=df_melt,
+    x='value',
+    hue='day_quarter',
+    palette='vlag',
+    kde=True,
+    rug=True,
+    col='variable',
+    height=9,
+    aspect=1,
+)
+plt.draw()
+
 # %% [markdown]
 # The distribution of the spectral centroids seems to have a displacement to
 # higher values, after the provision of ractopamine to the animals.
@@ -261,6 +380,28 @@ sns.displot(
     col='variable',
     kde=True,
     rug=True,
+    height=9,
+    aspect=1,
+)
+plt.draw()
+
+df_tmp = df.reset_index()
+df_tmp['hour'] = df_tmp['datetime'].dt.hour
+df_tmp['day_quarter'] = df_tmp['hour'] // 6
+df_melt = pd.melt(
+    df_tmp,
+    id_vars=['day_quarter'],
+    value_vars=['spectral_centroids_delta', 'spectral_centroids_accelerate'])
+sns.set(style="whitegrid",
+        palette=sns.color_palette("muted", n_colors=6, desat=1.0))
+sns.displot(
+    data=df_melt,
+    x='value',
+    hue='day_quarter',
+    palette='vlag',
+    kde=True,
+    rug=True,
+    col='variable',
     height=9,
     aspect=1,
 )
@@ -356,6 +497,25 @@ sns.displot(
 )
 plt.draw()
 
+df_tmp = df.reset_index()
+df_tmp['hour'] = df_tmp['datetime'].dt.hour
+df_tmp['day_quarter'] = df_tmp['hour'] // 6
+df_melt = pd.melt(df_tmp, id_vars=['day_quarter'], value_vars=['tempo_bpm'])
+sns.set(style="whitegrid",
+        palette=sns.color_palette("muted", n_colors=6, desat=1.0))
+sns.displot(
+    data=df_melt,
+    x='value',
+    hue='day_quarter',
+    palette='vlag',
+    kde=True,
+    rug=True,
+    col='variable',
+    height=9,
+    aspect=1,
+)
+plt.draw()
+
 # %% [markdown]
 # This feature, similarly to the chroma features, is mostly used with music
 # analysis. No relevant differences in the distributions were observed.
@@ -384,6 +544,27 @@ sns.displot(
 )
 plt.draw()
 
+df_tmp = df.reset_index()
+df_tmp['hour'] = df_tmp['datetime'].dt.hour
+df_tmp['day_quarter'] = df_tmp['hour'] // 6
+df_melt = pd.melt(df_tmp,
+                  id_vars=['day_quarter'],
+                  value_vars=['spectral_rolloff'])
+sns.set(style="whitegrid",
+        palette=sns.color_palette("muted", n_colors=6, desat=1.0))
+sns.displot(
+    data=df_melt,
+    x='value',
+    hue='day_quarter',
+    palette='vlag',
+    kde=True,
+    rug=True,
+    col='variable',
+    height=9,
+    aspect=1,
+)
+plt.draw()
+
 # %% [markdown]
 # A slight displacement can be seem between the two groups of files.
 # This could reinforce the hypothesis drawn from the spectral centroid
@@ -405,6 +586,27 @@ sns.displot(
     col='variable',
     kde=True,
     rug=True,
+    height=9,
+    aspect=1,
+)
+plt.draw()
+
+df_tmp = df.reset_index()
+df_tmp['hour'] = df_tmp['datetime'].dt.hour
+df_tmp['day_quarter'] = df_tmp['hour'] // 6
+df_melt = pd.melt(df_tmp,
+                  id_vars=['day_quarter'],
+                  value_vars=['spectral_flux'])
+sns.set(style="whitegrid",
+        palette=sns.color_palette("muted", n_colors=6, desat=1.0))
+sns.displot(
+    data=df_melt,
+    x='value',
+    hue='day_quarter',
+    palette='vlag',
+    kde=True,
+    rug=True,
+    col='variable',
     height=9,
     aspect=1,
 )
@@ -618,6 +820,7 @@ print(
 # discarded, for performance reasons. The relevance of these features should
 # be further analyzed.
 
-# %%
+# %% [markdown]
+# Testing python-som with audio dataset
 
 # %%
