@@ -146,3 +146,6 @@ dmypy.json
 
 # Python-SOM
 python_som/
+
+# Backups
+*_back.*
