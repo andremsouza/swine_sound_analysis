@@ -15,8 +15,6 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
-import python_som
-
 # %% [markdown]
 # # Loading dataset
 
@@ -42,6 +40,9 @@ print("Duplicates by (datetime, ala, grupo):",
 df.drop_duplicates(subset=['datetime', 'ala', 'grupo'], inplace=True)
 # Rebuilding dataframe index
 df.set_index('datetime', inplace=True)
+
+# %%
+print(df.shape)
 
 # %% [markdown]
 # ## Visualizing distribution of sample dates
@@ -425,6 +426,15 @@ plt.draw()
 # the helix.
 
 # %%
+
+# Visualizing single-file chromagram
+chroma = lr.feature.chroma_stft(y=x, sr=sr, n_chroma=12, n_fft=2048)
+fig, ax = plt.subplots(figsize=(16, 9))
+img = lr.display.specshow(chroma, y_axis='chroma', x_axis='time', ax=ax)
+fig.colorbar(img, ax=ax)
+ax.set(title='Chromagram')
+plt.draw()
+
 chroma_cols = [
     'chroma1',
     'chroma2',
@@ -692,6 +702,15 @@ plt.draw()
 # features.
 
 # %%
+
+# Visualizing single-file mfccs
+mfccs = lr.feature.mfcc(y=x, sr=sr, n_mfcc=20)
+fig, ax = plt.subplots(figsize=(16, 9))
+img = lr.display.specshow(mfccs, x_axis='time', ax=ax)
+fig.colorbar(img, ax=ax)
+ax.set(title='MFCC')
+plt.draw()
+
 mfcc_cols = [
     'mfcc0',
     'mfcc1',
@@ -819,8 +838,5 @@ print(
 # If necessary, more features, such as deltas and accelerates, can be
 # discarded, for performance reasons. The relevance of these features should
 # be further analyzed.
-
-# %% [markdown]
-# Testing python-som with audio dataset
 
 # %%
