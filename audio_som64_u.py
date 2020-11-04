@@ -148,6 +148,24 @@ fig.savefig(f'./output_{FILE_PREFIX}/{FILE_PREFIX}_umatrix_activation.png',
             transparent=True)
 plt.draw()
 
+# %%
+# Visualizing distance matrix anc activation matrix separately
+fig = plt.figure(figsize=(16, 9))
+ax = sns.heatmap(umatrix.T, cmap='bone_r', robust=True)
+ax.invert_yaxis()
+fig.savefig(f'./output_{FILE_PREFIX}/{FILE_PREFIX}_umatrix.png',
+            bbox_inches='tight',
+            transparent=True)
+
+fig = plt.figure(figsize=(16, 9))
+ax = sns.heatmap(som.activation_matrix(data=df_train).T,
+                 cmap='mako',
+                 robust=True)
+ax.invert_yaxis()
+fig.savefig(f'./output_{FILE_PREFIX}/{FILE_PREFIX}_activation_matrix.png',
+            bbox_inches='tight',
+            transparent=True)
+
 # %% [markdown]
 # ## Visualizing distribution of features
 
