@@ -15,6 +15,8 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
+FILE_PREFIX = 'kdd'
+
 # %% [markdown]
 # # Loading dataset
 
@@ -54,10 +56,13 @@ del df_tmp['file_name']
 df_tmp['rac'] = False
 df_tmp.loc['2020-09-22':, 'rac'] = True  # type: ignore
 
-plt.figure(figsize=(10, 10))
+fig = plt.figure(figsize=(10, 10))
 sns.set(style="whitegrid",
         palette=sns.color_palette("muted", n_colors=6, desat=1.0))
 sns.barplot(y=df_tmp.index, x=df_tmp['count'], hue=df_tmp['rac'])
+fig.savefig(f'./output_{FILE_PREFIX}/{FILE_PREFIX}_files_byday.png',
+            bbox_inches='tight',
+            transparent=True)
 plt.draw()
 
 df_tmp = pd.DataFrame(df['file_name'].resample('1H').count())
@@ -68,10 +73,13 @@ df_tmp.loc['2020-09-22':, 'rac'] = True  # type: ignore
 df_tmp = df_tmp.reset_index()
 df_tmp['hour'] = df_tmp['datetime'].dt.hour
 
-plt.figure(figsize=(10, 10))
+fig = plt.figure(figsize=(10, 10))
 sns.set(style="whitegrid",
         palette=sns.color_palette("muted", n_colors=6, desat=1.0))
 sns.barplot(y=df_tmp['hour'], x=df_tmp['count'], hue=df_tmp['rac'], orient='h')
+fig.savefig(f'./output_{FILE_PREFIX}/{FILE_PREFIX}_files_byhour.png',
+            bbox_inches='tight',
+            transparent=True)
 plt.draw()
 
 # %% [markdown]
@@ -98,8 +106,10 @@ img = lrdisp.specshow(lr.amplitude_to_db(np.abs(lr.stft(x)), ref=np.max),
                       x_axis='time',
                       ax=ax[1])
 fig.colorbar(img, ax=ax[1], format="%+2.0f dB")
+fig.savefig(f'./output_{FILE_PREFIX}/{FILE_PREFIX}_audio_sample.png',
+            bbox_inches='tight',
+            transparent=True)
 plt.draw()
-fig.savefig('./audio_sample.png', bbox_inches='tight')
 
 # %% [markdown]
 # # Visualizing basic dataset properties
@@ -122,7 +132,7 @@ print(df.info())
 
 # %%
 df_melt = pd.melt(df, value_vars=['rac'], value_name='ractopamine')
-plt.figure(figsize=(10, 10))
+fig = plt.figure(figsize=(10, 10))
 sns.set(style="whitegrid",
         palette=sns.color_palette("muted", n_colors=6, desat=1.0))
 ax = sns.countplot(data=df_melt, x='ractopamine', hue='ractopamine')
@@ -133,7 +143,9 @@ for p in ax.patches:
                 va='top',
                 color='white',
                 size=18)
-
+fig.savefig(f'./output_{FILE_PREFIX}/{FILE_PREFIX}_rac_distribution.png',
+            bbox_inches='tight',
+            transparent=True)
 plt.draw()
 
 # %% [markdown]
@@ -166,6 +178,9 @@ sns.displot(
     aspect=1,
 )
 plt.draw()
+plt.savefig(f'./output_{FILE_PREFIX}/{FILE_PREFIX}_zero_crossing_rac.png',
+            bbox_inches='tight',
+            transparent=True)
 
 df_tmp = df.reset_index()
 df_tmp['hour'] = df_tmp['datetime'].dt.hour
@@ -187,6 +202,9 @@ sns.displot(
     aspect=1,
 )
 plt.draw()
+plt.savefig(f'./output_{FILE_PREFIX}/{FILE_PREFIX}_zero_crossing_day.png',
+            bbox_inches='tight',
+            transparent=True)
 
 # %% [markdown]
 # The distribution of the zero crossing seems slightly different after the
@@ -232,6 +250,9 @@ sns.displot(
     aspect=1,
 )
 plt.draw()
+plt.savefig(f'./output_{FILE_PREFIX}/{FILE_PREFIX}_spectrogram_rac.png',
+            bbox_inches='tight',
+            transparent=True)
 
 df_tmp = df.reset_index()
 df_tmp['hour'] = df_tmp['datetime'].dt.hour
@@ -253,6 +274,9 @@ sns.displot(
     aspect=1,
 )
 plt.draw()
+plt.savefig(f'./output_{FILE_PREFIX}/{FILE_PREFIX}_spectrogram_day.png',
+            bbox_inches='tight',
+            transparent=True)
 
 # %% [markdown]
 # No relevant differences in the distributions were observed.
@@ -282,6 +306,9 @@ sns.displot(
     aspect=1,
 )
 plt.draw()
+plt.savefig(f'./output_{FILE_PREFIX}/{FILE_PREFIX}_harmonics_rac.png',
+            bbox_inches='tight',
+            transparent=True)
 
 df_tmp = df.reset_index()
 df_tmp['hour'] = df_tmp['datetime'].dt.hour
@@ -303,6 +330,9 @@ sns.displot(
     aspect=1,
 )
 plt.draw()
+plt.savefig(f'./output_{FILE_PREFIX}/{FILE_PREFIX}_harmonics_day.png',
+            bbox_inches='tight',
+            transparent=True)
 
 # %% [markdown]
 # No relevant differences in the distributions were observed.
@@ -334,6 +364,9 @@ sns.displot(
     aspect=1,
 )
 plt.draw()
+plt.savefig(f'./output_{FILE_PREFIX}/{FILE_PREFIX}_spectral_centroids_rac.png',
+            bbox_inches='tight',
+            transparent=True)
 
 df_tmp = df.reset_index()
 df_tmp['hour'] = df_tmp['datetime'].dt.hour
@@ -355,6 +388,9 @@ sns.displot(
     aspect=1,
 )
 plt.draw()
+plt.savefig(f'./output_{FILE_PREFIX}/{FILE_PREFIX}_spectral_centroids_day.png',
+            bbox_inches='tight',
+            transparent=True)
 
 # %% [markdown]
 # The distribution of the spectral centroids seems to have a displacement to
@@ -385,6 +421,10 @@ sns.displot(
     aspect=1,
 )
 plt.draw()
+plt.savefig(
+    f'./output_{FILE_PREFIX}/{FILE_PREFIX}_spectral_centroids_derivatives_rac.png',
+    bbox_inches='tight',
+    transparent=True)
 
 df_tmp = df.reset_index()
 df_tmp['hour'] = df_tmp['datetime'].dt.hour
@@ -407,6 +447,10 @@ sns.displot(
     aspect=1,
 )
 plt.draw()
+plt.savefig(
+    f'./output_{FILE_PREFIX}/{FILE_PREFIX}_spectral_centroids_derivatives_day.png',
+    bbox_inches='tight',
+    transparent=True)
 
 # %% [markdown]
 # No relevant differences in the distributions were observed.
@@ -434,6 +478,9 @@ img = lr.display.specshow(chroma, y_axis='chroma', x_axis='time', ax=ax)
 fig.colorbar(img, ax=ax)
 ax.set(title='Chromagram')
 plt.draw()
+plt.savefig(f'./output_{FILE_PREFIX}/{FILE_PREFIX}_chromagram.png',
+            bbox_inches='tight',
+            transparent=True)
 
 chroma_cols = [
     'chroma1',
@@ -462,6 +509,9 @@ sns.displot(
     aspect=1,
 )
 plt.draw()
+plt.savefig(f'./output_{FILE_PREFIX}/{FILE_PREFIX}_chroma_features_rac.png',
+            bbox_inches='tight',
+            transparent=True)
 
 # %% [markdown]
 # Chroma features may be very useful for distinguishing musical tones.
@@ -472,7 +522,7 @@ plt.draw()
 # chroma8, chroma9, chroma11, and chroma12, which should be further analyzed.
 
 # %%
-plt.figure(figsize=(20, 20))
+plt.figure(figsize=(12, 12))
 sns.heatmap(df.loc[:, chroma_cols + ['rac']].corr(),
             vmin=-1.0,
             vmax=1.0,
@@ -481,6 +531,9 @@ sns.heatmap(df.loc[:, chroma_cols + ['rac']].corr(),
             robust=True,
             annot=True)
 plt.draw()
+plt.savefig(f'./output_{FILE_PREFIX}/{FILE_PREFIX}_chroma_featues_corr.png',
+            bbox_inches='tight',
+            transparent=True)
 
 # %% [markdown]
 # As expected, the chroma features are highly correlated with their neighbors.
@@ -506,6 +559,9 @@ sns.displot(
     aspect=1,
 )
 plt.draw()
+plt.savefig(f'./output_{FILE_PREFIX}/{FILE_PREFIX}_tempo_rac.png',
+            bbox_inches='tight',
+            transparent=True)
 
 df_tmp = df.reset_index()
 df_tmp['hour'] = df_tmp['datetime'].dt.hour
@@ -525,6 +581,9 @@ sns.displot(
     aspect=1,
 )
 plt.draw()
+plt.savefig(f'./output_{FILE_PREFIX}/{FILE_PREFIX}_tempo_day.png',
+            bbox_inches='tight',
+            transparent=True)
 
 # %% [markdown]
 # This feature, similarly to the chroma features, is mostly used with music
@@ -553,6 +612,9 @@ sns.displot(
     aspect=1,
 )
 plt.draw()
+plt.savefig(f'./output_{FILE_PREFIX}/{FILE_PREFIX}_spectral_rolloff_rac.png',
+            bbox_inches='tight',
+            transparent=True)
 
 df_tmp = df.reset_index()
 df_tmp['hour'] = df_tmp['datetime'].dt.hour
@@ -574,6 +636,9 @@ sns.displot(
     aspect=1,
 )
 plt.draw()
+plt.savefig(f'./output_{FILE_PREFIX}/{FILE_PREFIX}_spectral_rolloff_day.png',
+            bbox_inches='tight',
+            transparent=True)
 
 # %% [markdown]
 # A slight displacement can be seem between the two groups of files.
@@ -600,6 +665,9 @@ sns.displot(
     aspect=1,
 )
 plt.draw()
+plt.savefig(f'./output_{FILE_PREFIX}/{FILE_PREFIX}_spectral_flux_rac.png',
+            bbox_inches='tight',
+            transparent=True)
 
 df_tmp = df.reset_index()
 df_tmp['hour'] = df_tmp['datetime'].dt.hour
@@ -621,6 +689,9 @@ sns.displot(
     aspect=1,
 )
 plt.draw()
+plt.savefig(f'./output_{FILE_PREFIX}/{FILE_PREFIX}_spectral_flux_day.png',
+            bbox_inches='tight',
+            transparent=True)
 
 # %% [markdown]
 # There has been no noticeable major changes in the distribution.
@@ -657,6 +728,10 @@ sns.displot(
     aspect=1,
 )
 plt.draw()
+plt.savefig(
+    f'./output_{FILE_PREFIX}/{FILE_PREFIX}_spectral_bandwidths_rac.png',
+    bbox_inches='tight',
+    transparent=True)
 
 # %% [markdown]
 # No relevant differences in the distributions were observed.
@@ -669,7 +744,7 @@ plt.draw()
 # ### Correlation matrix of subset of features
 
 # %%
-plt.figure(figsize=(20, 20))
+plt.figure(figsize=(12, 12))
 sns.heatmap(df.loc[:, [
     'zero_crossing_rate', 'spectrogram', 'mel_spectrogram', 'harmonics',
     'perceptual_shock_wave', 'spectral_centroids', 'tempo_bpm',
@@ -683,6 +758,9 @@ sns.heatmap(df.loc[:, [
             robust=True,
             annot=True)
 plt.draw()
+plt.savefig(f'./output_{FILE_PREFIX}/{FILE_PREFIX}_corr.png',
+            bbox_inches='tight',
+            transparent=True)
 
 # %% [markdown]
 # The spectral centroids feature had the highest correlation with 'rac',
@@ -746,6 +824,9 @@ sns.displot(
     aspect=1,
 )
 plt.draw()
+plt.savefig(f'./output_{FILE_PREFIX}/{FILE_PREFIX}_mfccs_rac.png',
+            bbox_inches='tight',
+            transparent=True)
 
 # %% [markdown]
 # From related papers, the MFCCs are some of the most representative features.
@@ -757,7 +838,7 @@ plt.draw()
 # mfcc14 through mfcc19 are discard candidates.
 
 # %%
-plt.figure(figsize=(20, 20))
+plt.figure(figsize=(12, 12))
 sns.heatmap(df.loc[:, mfcc_cols + ['rac']].corr(),
             vmin=-1.0,
             vmax=1.0,
@@ -766,6 +847,9 @@ sns.heatmap(df.loc[:, mfcc_cols + ['rac']].corr(),
             robust=True,
             annot=True)
 plt.draw()
+plt.savefig(f'./output_{FILE_PREFIX}/{FILE_PREFIX}_mfccs_corr.png',
+            bbox_inches='tight',
+            transparent=True)
 
 # %% [markdown]
 # Initially the highest absolute correlation with 'rac' is onm mfcc9, mfcc15,
