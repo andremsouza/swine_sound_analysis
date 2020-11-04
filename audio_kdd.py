@@ -531,7 +531,7 @@ sns.heatmap(df.loc[:, chroma_cols + ['rac']].corr(),
             robust=True,
             annot=True)
 plt.draw()
-plt.savefig(f'./output_{FILE_PREFIX}/{FILE_PREFIX}_chroma_featues_corr.png',
+plt.savefig(f'./output_{FILE_PREFIX}/{FILE_PREFIX}_chroma_features_corr.png',
             bbox_inches='tight',
             transparent=True)
 
