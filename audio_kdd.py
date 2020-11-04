@@ -529,7 +529,8 @@ sns.heatmap(df.loc[:, chroma_cols + ['rac']].corr(),
             cmap="coolwarm",
             center=0.0,
             robust=True,
-            annot=True)
+            annot=True,
+            fmt='.1f')
 plt.draw()
 plt.savefig(f'./output_{FILE_PREFIX}/{FILE_PREFIX}_chroma_features_corr.png',
             bbox_inches='tight',
@@ -756,7 +757,8 @@ sns.heatmap(df.loc[:, [
             cmap="coolwarm",
             center=0.0,
             robust=True,
-            annot=True)
+            annot=True,
+            fmt='.1f')
 plt.draw()
 plt.savefig(f'./output_{FILE_PREFIX}/{FILE_PREFIX}_corr.png',
             bbox_inches='tight',
@@ -845,7 +847,8 @@ sns.heatmap(df.loc[:, mfcc_cols + ['rac']].corr(),
             cmap="coolwarm",
             center=0.0,
             robust=True,
-            annot=True)
+            annot=True,
+            fmt='.1f')
 plt.draw()
 plt.savefig(f'./output_{FILE_PREFIX}/{FILE_PREFIX}_mfccs_corr.png',
             bbox_inches='tight',
