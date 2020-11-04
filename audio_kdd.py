@@ -790,6 +790,7 @@ img = lr.display.specshow(mfccs, x_axis='time', ax=ax)
 fig.colorbar(img, ax=ax)
 ax.set(title='MFCC')
 plt.draw()
+fig.savefig(f'./output_{FILE_PREFIX}/{FILE_PREFIX}_mfcc.png')
 
 mfcc_cols = [
     'mfcc0',
