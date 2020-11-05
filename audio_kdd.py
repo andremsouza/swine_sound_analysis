@@ -422,7 +422,8 @@ sns.displot(
 )
 plt.draw()
 plt.savefig(
-    f'./output_{FILE_PREFIX}/{FILE_PREFIX}_spectral_centroids_derivatives_rac.png',
+    f'./output_{FILE_PREFIX}/{FILE_PREFIX}'
+    '_spectral_centroids_derivatives_rac.png',
     bbox_inches='tight',
     transparent=True)
 
@@ -448,7 +449,8 @@ sns.displot(
 )
 plt.draw()
 plt.savefig(
-    f'./output_{FILE_PREFIX}/{FILE_PREFIX}_spectral_centroids_derivatives_day.png',
+    f'./output_{FILE_PREFIX}/{FILE_PREFIX}'
+    '_spectral_centroids_derivatives_day.png',
     bbox_inches='tight',
     transparent=True)
 
